@@ -37,6 +37,13 @@ def predict(model, reviews, paths):
     word_count = model["word_count"]
     token_count = model["token_count"]
 
+    sorted_vocab = sorted(vocabulary.items(), key=lambda x: x[1], reverse=True)
+    # print(sorted_vocab[:10])
+    # print(len(vocabulary))
+    for i in range(10):
+        # print(sorted_vocab[i][0])
+        del vocabulary[sorted_vocab[i][0]]
+    # print(len(vocabulary))
     for review, path in zip(reviews, paths):
         tokens = nblearn.tokenize(review)
         pt_prob = math.log(class_priors["pt"])
@@ -46,6 +53,7 @@ def predict(model, reviews, paths):
         for token in tokens:
             if token not in vocabulary:
                 continue
+
             # Add Laplace smoothing
             pt = math.log((word_count["pt"].get(token, 0) + 1) / (token_count["pt"] + len(vocabulary)))
             pd = math.log((word_count["pd"].get(token, 0) + 1) / (token_count["pd"] + len(vocabulary)))
@@ -56,13 +64,6 @@ def predict(model, reviews, paths):
             nt_prob += nt
             nd_prob += nd
 
-        # print(pt_prob, pd_prob, nt_prob, nd_prob)
-        # print(pt_prob, nt_prob)
-        # print(path)
-        # if pt_prob > nt_prob:
-        #     results.append("positive")
-        # elif nt_prob > pt_prob:
-        #     results.append("negative")
         if pt_prob == max(pt_prob, pd_prob, nt_prob, nd_prob):
             results.append("truthful positive")
         elif pd_prob == max(pt_prob, pd_prob, nt_prob, nd_prob):

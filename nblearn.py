@@ -58,7 +58,7 @@ def fit(reviews, labels):
     nbmodel = {}
     review_count = {}
     class_priors = {}
-    vocabulary = set()
+    vocabulary = {}
     token_count = {"pt": 0, "pd": 0, "nt": 0, "nd": 0}
     word_count = {"pt": {}, "pd": {}, "nt": {}, "nd": {}}
     review_count["pt"] = sum(1 for label in labels if label == "pt")
@@ -75,12 +75,13 @@ def fit(reviews, labels):
         tokens = tokenize(review)
         for token in tokens:
             if token not in vocabulary:
-                vocabulary.add(token)
+                vocabulary[token] = 0
             if token not in word_count[label]:
                 word_count[label][token] = 0
+            vocabulary[token] += 1
             word_count[label][token] += 1
             token_count[label] += 1
-    # print(word_count["pt"])
+
     nbmodel["token_count"] = token_count
     nbmodel["class_priors"] = class_priors
     nbmodel["vocabulary"] = vocabulary
